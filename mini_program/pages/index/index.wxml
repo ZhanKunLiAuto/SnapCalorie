@@ -1,0 +1,5 @@
+<view class="container">
+  <button bindtap="takePhoto">Take Photo</button>
+  <image wx:if="{{imagePath}}" src="{{imagePath}}" mode="widthFix"></image>
+  <view wx:if="{{calorie}}">Estimated Calories: {{calorie}}</view>
+</view>
