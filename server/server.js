@@ -1,14 +1,16 @@
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
-// configure with your OpenAI API key
-const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
-const openai = new OpenAIApi(configuration);
+// configure with your DashScope (Qwen) API key
+const client = new OpenAI({
+  apiKey: process.env.DASHSCOPE_API_KEY,
+  baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1'
+});
 
 app.post('/analyze', upload.single('image'), async (req, res) => {
   try {
@@ -16,8 +18,8 @@ app.post('/analyze', upload.single('image'), async (req, res) => {
     const imageData = fs.readFileSync(imagePath);
     const base64Image = imageData.toString('base64');
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+    const completion = await client.chat.completions.create({
+      model: 'qwen-vl-plus',
       messages: [
         {
           role: 'system',
@@ -51,6 +53,10 @@ app.post('/analyze', upload.single('image'), async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
-});
+if (require.main === module) {
+  app.listen(3000, () => {
+    console.log('Server running on port 3000');
+  });
+}
+
+module.exports = app;
